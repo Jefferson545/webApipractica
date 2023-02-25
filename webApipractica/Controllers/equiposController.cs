@@ -53,17 +53,68 @@ namespace webApipractica.Controllers
         }
 
         [HttpPost]
-        [Route("add")]
-        public IActionResult Post([FromBody]equipos equipo)
+        [Route("Add")]
+        public IActionResult GuardarEquipo([FromBody]equipos equipo)
         {
             try
             {
 
+                _equiposContexto.equipos.Add(equipo);
+                _equiposContexto.SaveChanges();
+                return Ok(equipo);
+
             }catch( Exception ex)
             {
-                return BadRequest(e)
+                return BadRequest(ex.Message);
             }
+            
         }
 
+        [HttpPut]
+        [Route("actualizar/{id}")]
+        public IActionResult actualizarequipo(int id, [FromBody] equipos equipoModificar)
+        {
+            equipos? equipo = (from e in _equiposContexto.equipos
+                               where e.id_equipos == id
+                               select e).FirstOrDefault();
+            if (equipo == null) return NotFound();
+
+            equipo.nombre = equipoModificar.nombre;
+            equipo.descripcion = equipoModificar.descripcion;
+            equipo.tipo_equipo_id=equipoModificar.tipo_equipo_id;
+            equipo.marca_id=equipoModificar.marca_id;
+            equipo.modelo = equipoModificar.modelo;
+            equipo.anio_compra=equipoModificar.anio_compra;
+            equipo.costo = equipoModificar.costo;
+            equipo.estado = equipoModificar.estado;
+
+            _equiposContexto.Entry(equipo).State=EntityState.Modified;
+            _equiposContexto.SaveChanges();
+
+            return Ok(equipoModificar);
+
+
+
+
+        }
+        [HttpDelete]
+        [Route("eliminar/{id}")]
+        public IActionResult EliminarEquipos(int id)
+        {
+            equipos? equipo = (from e in _equiposContexto.equipos
+                               where e.id_equipos == id
+                               select e).FirstOrDefault();
+            if (equipo == null) return NotFound();
+
+            return Ok(equipo);
+            _equiposContexto.equipos.Attach(equipo);
+            _equiposContexto.equipos.Remove(equipo);
+            _equiposContexto.SaveChanges();
+            return Ok(equipo);
+        }
+
+
+
     }
+    
 }
