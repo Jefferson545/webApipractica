@@ -22,5 +22,7 @@ namespace webApipractica.Models
         public DateTime? fecha_retorno { get; set; }
 
         public DateTime? hora_retorno { get; set; }
+        public string? estado { get; set; }
+
     }
 }

@@ -19,8 +19,19 @@ namespace webApipractica.Controllers
         [Route("GetAll")]
         public IActionResult Get()
         {
-            List<equipos> listadoEquipo =(from e in _equiposContexto.equipos
-                                           select e).ToList();
+            var listadoEquipo =(from e in _equiposContexto.equipos
+                                          join m in _equiposContexto.marcas on e.marca_id equals m.id_marcas
+                                          join te in _equiposContexto.tipo_equipo on e.tipo_equipo_id equals te.id_tipo_equipo
+                                          select new
+                                          {
+                                              e.id_equipos,
+                                              e.nombre,
+                                              e.descripcion,
+                                              e.tipo_equipo_id,
+                                              tipo_descripcion=te.descripcion,
+                                              e.marca_id,
+                                              m.nombre_marca
+                                          }).ToList();
             if(listadoEquipo.Count == 0)
             {
                 return NotFound();
@@ -97,20 +108,21 @@ namespace webApipractica.Controllers
 
 
         }
-        [HttpDelete]
+        [HttpPut]
         [Route("eliminar/{id}")]
-        public IActionResult EliminarEquipos(int id)
+        public IActionResult Eliminarequipos(int id)
         {
-            equipos? equipo = (from e in _equiposContexto.equipos
+            equipos? carre = (from e in _equiposContexto.equipos
                                where e.id_equipos == id
                                select e).FirstOrDefault();
-            if (equipo == null) return NotFound();
+            if (carre == null) return NotFound();
 
-            return Ok(equipo);
-            _equiposContexto.equipos.Attach(equipo);
-            _equiposContexto.equipos.Remove(equipo);
+            carre.estado = "I";
+            _equiposContexto.Entry(carre).State = EntityState.Modified;
             _equiposContexto.SaveChanges();
-            return Ok(equipo);
+
+            return Ok(carre);
+
         }
 
 
